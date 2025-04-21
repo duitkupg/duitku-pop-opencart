@@ -68,8 +68,8 @@
               <label class="col-sm-2 control-label" for="payment_duitku_pop_ui_mode"><?php echo $entry_ui_mode; ?></label>
               <div class="col-sm-10">
                 <select name="duitku_pop_ui_mode" id="payment_duitku_pop_ui_mode" class="form-control">
-                  <?php $options = array('popup' => 'Popup', 'redirect' => 'Redirect') ?>
-                  <?php foreach ($options as $key_ui => $value_ui): ?>
+                  <?php $options_ui = array('popup' => 'Popup', 'redirect' => 'Redirect') ?>
+                  <?php foreach ($options_ui as $key_ui => $value_ui): ?>
 									<option value="<?php echo $key_ui ?>" <?php if ($key_ui == $duitku_pop_ui_mode) echo 'selected' ?> ><?php echo $value_ui ?></option>
 									<?php endforeach ?>
                 </select>

@@ -1,8 +1,10 @@
 <?php
 
-class ModelPaymentDuitkuPop extends Model {
+class ModelExtensionPaymentDuitkuPop extends Model
+{
 
-  public function getMethod($address, $total) {
+  public function getMethod($address, $total)
+  {
 
     $this->load->language('payment/duitku_pop');
 
@@ -42,13 +44,15 @@ class ModelPaymentDuitkuPop extends Model {
     return $method_data;
   }
 
-  public function addToken($data){
-    $this->db->query("INSERT INTO `tokens` SET order_id = '" . $data['order_id'] . "', token_merchant = '" .$data['token_merchant']. "', token_browser = '" . $data['token_browser'] . "'");
+  public function addToken($data)
+  {
+    $this->db->query("INSERT INTO `tokens` SET order_id = '" . $data['order_id'] . "', token_merchant = '" . $data['token_merchant'] . "', token_browser = '" . $data['token_browser'] . "'");
   }
 
-  public function getTokenMerchant($orderId){
+  public function getTokenMerchant($orderId)
+  {
     $merchant_query = $this->db->query("SELECT token_merchant FROM `tokens` WHERE order_id = '" . $orderId . "'");
-    $token_merchant='0';
+    $token_merchant = '0';
 
     if ($merchant_query->num_rows) {
       $token_merchant = $merchant_query->row['token_merchant'];
@@ -57,9 +61,10 @@ class ModelPaymentDuitkuPop extends Model {
     return $token_merchant;
   }
 
-  public function getTokenBrowser($orderId){
+  public function getTokenBrowser($orderId)
+  {
     $browser_query = $this->db->query("SELECT token_browser FROM `tokens` WHERE order_id = '" . $orderId . "'");
-    $token_browser='0';
+    $token_browser = '0';
 
     if ($browser_query->num_rows) {
       $token_browser = $browser_query->row['token_browser'];

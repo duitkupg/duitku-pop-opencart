@@ -1,10 +1,10 @@
 <?php
-class ControllerPaymentDuitkuPop extends Controller {
+class ControllerExtensionPaymentDuitkuPop extends Controller {
 
   private $error = array();
 
   public function index() {
-    $this->load->language('payment/duitku_pop');
+    $this->load->language('extension/payment/duitku_pop');
 
     $this->load->language('cache/cleaner');
     $this->document->setTitle($this->language->get('heading_title'));
@@ -18,7 +18,7 @@ class ControllerPaymentDuitkuPop extends Controller {
 
       $this->session->data['success'] = $this->language->get('text_success');
 
-      $this->response->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
+      $this->response->redirect($this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=payment', true));
     }
 
     $language_entries = array(
@@ -33,13 +33,13 @@ class ControllerPaymentDuitkuPop extends Controller {
       'text_edit',
       'entry_merchant',
       'entry_api_key',
+      'entry_expiry_period',
+      'entry_ui_mode',
       'entry_test',
       'entry_total',
       'entry_order_status',
       'entry_geo_zone',
       'entry_status',
-      'entry_expiry_period',
-      'entry_ui_mode',
       'entry_sort_order',
       'entry_duitku_pop_success_mapping',
       'entry_duitku_pop_pending_mapping',
@@ -65,25 +65,25 @@ class ControllerPaymentDuitkuPop extends Controller {
 
     $data['breadcrumbs'][] = array(
       'text' => $this->language->get('text_home'),
-      'href' => $this->url->link('common/home', 'token=' . @$this->session->data['token'], 'SSL'),
-      'separator' => false
+      'href' => $this->url->link('common/dashboard', 'token=' . @$this->session->data['token'], true),
+      // 'separator' => false
     );
 
     $data['breadcrumbs'][] = array(
       'text' => $this->language->get('text_payment'),
-      'href' => $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'),
-      'separator' => ' :: '
+      'href' => $this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=payment', true),
+      // 'separator' => ' :: '
     );
 
     $data['breadcrumbs'][] = array(
       'text' => $this->language->get('heading_title'),
-      'href' => $this->url->link('payment/duitku_pop', 'token=' . $this->session->data['token'], 'SSL'),
-      'separator' => ' :: '
+      'href' => $this->url->link('extension/payment/duitku_pop', 'token=' . $this->session->data['token'], true),
+      // 'separator' => ' :: '
     );
 
-    $data['action'] = $this->url->link('payment/duitku_pop', 'token=' . $this->session->data['token'], 'SSL');
+    $data['action'] = $this->url->link('extension/payment/duitku_pop', 'token=' . $this->session->data['token'], true);
 
-    $data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
+    $data['cancel'] = $this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=payment', true);
 
     $inputs = array(
       'duitku_pop_merchant',
@@ -96,9 +96,9 @@ class ControllerPaymentDuitkuPop extends Controller {
       'duitku_pop_geo_zone_id',
       'duitku_pop_sort_order',
       'duitku_pop_plugin_status',
-      'duitku_pop_status',
       'duitku_pop_expiry_period',
       'duitku_pop_ui_mode',
+      'duitku_pop_status',
       'duitku_pop_success_mapping',
       'duitku_pop_pending_mapping',
       'duitku_pop_failure_mapping',
@@ -137,13 +137,13 @@ class ControllerPaymentDuitkuPop extends Controller {
     {
       $data['curr'] = false;
     }
-    $this->response->setOutput($this->load->view('payment/duitku_pop.tpl',$data));
+    $this->response->setOutput($this->load->view('extension/payment/duitku_pop',$data));
 
   }
 
   protected function validate() {
 
-    if (!$this->user->hasPermission('modify', 'payment/duitku_pop')) {
+    if (!$this->user->hasPermission('modify', 'extension/payment/duitku_pop')) {
       $this->error['warning'] = $this->language->get('error_permission');
     }
 

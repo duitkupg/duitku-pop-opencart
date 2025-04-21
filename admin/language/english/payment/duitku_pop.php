@@ -15,6 +15,9 @@ $_['entry_plugin_status']  = 'Plugin Status';
 $_['entry_endpoint']     = 'URL Endpoint';
 $_['entry_merchant']     = 'Merchant Code';
 $_['entry_api_key']      = 'Merchant API Key';
+$_['entry_return_url'] = 'Return Url';
+$_['entry_callback_url'] = 'Callback Url';
+$_['entry_ui_mode'] = 'UI Mode';
 $_['entry_test']         = 'Test Mode:';
 $_['entry_total']        = 'Total:<br /><span class="help">The checkout total the order must reach before this payment method becomes active.</span>';
 $_['entry_order_status'] = 'Order Status:';
@@ -26,7 +29,6 @@ $_['entry_duitku_pop_pending_mapping'] = 'Map Payment Pending Status to Order St
 $_['entry_duitku_pop_failure_mapping'] = 'Map Payment Failure Status to Order Status:';
 $_['entry_display_name'] = 'Display name:';
 $_['entry_expiry_period'] = 'Expiry Period';
-$_['entry_ui_mode'] = 'UI Mode';
 $_['development_status'] = 'Development';
 $_['sandbox_status'] = 'Sandbox';
 $_['production_status'] = 'Production';

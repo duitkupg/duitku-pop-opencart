@@ -33,7 +33,7 @@
 			<p>Minimum Payment is Rp.10000, Your payment amount is Rp.<?php echo $current_amount; ?></p>
 		<?php }else{ echo $warning_message; }?>
 	</div>
-	<a href="<?php echo $base_url; ?>" class="button" id='checkout-button'>Continue Shopping</a>
+	<a href="<?php echo $base_url; ?>" class="btn btn-info" id='checkout-button'>Continue Shopping</a>
 </div>
 <?php echo $content_bottom; ?>
 <?php echo $footer; ?>

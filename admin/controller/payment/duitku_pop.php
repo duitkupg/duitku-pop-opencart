@@ -6,7 +6,7 @@ class ControllerPaymentDuitkuPop extends Controller {
   public function index() {
     $this->load->language('payment/duitku_pop');
 
-    // $this->load->language('cache/cleaner');
+    $this->load->language('cache/cleaner');
     $this->document->setTitle($this->language->get('heading_title'));
 
     $this->load->model('setting/setting');
@@ -18,7 +18,7 @@ class ControllerPaymentDuitkuPop extends Controller {
 
       $this->session->data['success'] = $this->language->get('text_success');
 
-      $this->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
+      $this->response->redirect($this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'));
     }
 
     $language_entries = array(
@@ -39,51 +39,51 @@ class ControllerPaymentDuitkuPop extends Controller {
       'entry_geo_zone',
       'entry_status',
       'entry_expiry_period',
+      'entry_ui_mode',
       'entry_sort_order',
       'entry_duitku_pop_success_mapping',
       'entry_duitku_pop_pending_mapping',
       'entry_duitku_pop_failure_mapping',
       'entry_display_name',
       'entry_plugin_status',
-      'entry_ui_mode',
       'entry_endpoint',
       'button_save',
       'button_cancel'
     );
 
     foreach ($language_entries as $language_entry) {
-      $this->data[$language_entry] = $this->language->get($language_entry);
+      $data[$language_entry] = $this->language->get($language_entry);
     }
 
     if (isset($this->error)) {
-      $this->data['error'] = $this->error;
+      $data['error'] = $this->error;
     } else {
-      $this->data['error'] = array();
+      $data['error'] = array();
     }
 
-    $this->data['breadcrumbs'] = array();
+    $data['breadcrumbs'] = array();
 
-    $this->data['breadcrumbs'][] = array(
+    $data['breadcrumbs'][] = array(
       'text' => $this->language->get('text_home'),
-      'href' => $this->url->link('common/home', 'token=' . $this->session->data['token'], 'SSL'),
+      'href' => $this->url->link('common/home', 'token=' . @$this->session->data['token'], 'SSL'),
       'separator' => false
     );
 
-    $this->data['breadcrumbs'][] = array(
+    $data['breadcrumbs'][] = array(
       'text' => $this->language->get('text_payment'),
       'href' => $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL'),
       'separator' => ' :: '
     );
 
-    $this->data['breadcrumbs'][] = array(
+    $data['breadcrumbs'][] = array(
       'text' => $this->language->get('heading_title'),
       'href' => $this->url->link('payment/duitku_pop', 'token=' . $this->session->data['token'], 'SSL'),
       'separator' => ' :: '
     );
 
-    $this->data['action'] = $this->url->link('payment/duitku_pop', 'token=' . $this->session->data['token'], 'SSL');
+    $data['action'] = $this->url->link('payment/duitku_pop', 'token=' . $this->session->data['token'], 'SSL');
 
-    $this->data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
+    $data['cancel'] = $this->url->link('extension/payment', 'token=' . $this->session->data['token'], 'SSL');
 
     $inputs = array(
       'duitku_pop_merchant',
@@ -96,52 +96,49 @@ class ControllerPaymentDuitkuPop extends Controller {
       'duitku_pop_geo_zone_id',
       'duitku_pop_sort_order',
       'duitku_pop_plugin_status',
-      'duitku_pop_ui_mode',
       'duitku_pop_status',
       'duitku_pop_expiry_period',
+      'duitku_pop_ui_mode',
       'duitku_pop_success_mapping',
       'duitku_pop_pending_mapping',
       'duitku_pop_failure_mapping',
       'duitku_pop_challenge_mapping',
       'duitku_pop_display_name',
-      'duitku_pop_sanitization'
+      'duitku_pop_sanitization',
     );
 
     foreach ($inputs as $input) {
       if (isset($this->request->post[$input])) {
-        $this->data[$input] = $this->request->post[$input];
+        $data[$input] = $this->request->post[$input];
       } else {
-        $this->data[$input] = $this->config->get($input);
+        $data[$input] = $this->config->get($input);
       }
     }
 
     $this->load->model('localisation/order_status');
 
-    $this->data['statuses'] = array('duitku_pop_success_mapping', 'duitku_pop_pending_mapping', 'duitku_pop_failure_mapping');
-
-    $this->data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
+    $data['statuses'] = array('duitku_pop_success_mapping', 'duitku_pop_pending_mapping', 'duitku_pop_failure_mapping');
+    $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
     $this->load->model('localisation/geo_zone');
 
-    $this->data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
+    $data['geo_zones'] = $this->model_localisation_geo_zone->getGeoZones();
 
-    $this->template = 'payment/duitku_pop.tpl';
-    $this->children = array(
-      'common/header',
-      'common/footer'
-    );
+    $data['column_left'] = $this->load->controller('common/column_left');
+    $data['header'] = $this->load->controller('common/header');
+    $data['footer'] = $this->load->controller('common/footer');
 
 
     if(!$this->currency->has('IDR'))
     {
-      $this->data['curr'] = true;
+      $data['curr'] = true;
     }
     else
     {
-      $this->data['curr'] = false;
+      $data['curr'] = false;
     }
+    $this->response->setOutput($this->load->view('payment/duitku_pop.tpl',$data));
 
-    $this->response->setOutput($this->render());
   }
 
   protected function validate() {

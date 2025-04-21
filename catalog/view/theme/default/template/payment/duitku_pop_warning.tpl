@@ -1,0 +1,39 @@
+<?php echo $header; ?> <?php echo $column_left; ?> <?php echo $column_right; ?>
+<?php echo $content_top; ?>
+<div class="container" style="min-height: 300px;">
+	<style>
+	.flex-container {
+		display: flex;
+		align-content: center;
+		align-items: center;
+		justify-content: flex-start;
+	}
+	.flex-container > div {
+		padding-left: 10px;
+	}
+	.info-duitku {
+		border: 1px solid #2e4b94;
+    padding: 10px 10px 0px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    border-radius: 10px;
+	}
+	</style>
+	<div class="flex-container">
+		<div>
+			<img src="catalog/view/image/payment/logo.png" alt="img-duitku" style="height: 45px; width: auto;"/>
+		</div>
+		<div>
+			<span style="font-size:27px; color:#2e4b94">Duitku Payment</span>
+		</div>
+	</div>
+	<hr/>
+	<div class="info-duitku">
+		<?php if($warning_message == "Minimum Payment 10000"){?>
+			<p>Minimum Payment is Rp.10000, Your payment amount is Rp.<?php echo $current_amount; ?></p>
+		<?php }else{ echo $warning_message; }?>
+	</div>
+	<a href="<?php echo $base_url; ?>" class="button" id='checkout-button'>Continue Shopping</a>
+</div>
+<?php echo $content_bottom; ?>
+<?php echo $footer; ?>

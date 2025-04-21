@@ -1,0 +1,104 @@
+<?php echo $header; ?> <?php echo $column_left; ?> <?php echo $column_right; ?>
+<?php echo $content_top; ?>
+<div class="container" style="min-height: 300px;">
+	<script type="text/javascript" src="<?php echo $url_library; ?>"></script>
+	<style>
+	.flex-container {
+		display: flex;
+		align-content: center;
+		align-items: center;
+		justify-content: flex-start;
+	}
+	.flex-container > div {
+		padding-left: 10px;
+	}
+	</style>
+	<div class="flex-container">
+		<div>
+			<img src="catalog/view/image/payment/logo.png" alt="img-duitku" style="height: 45px; width: auto;"/>
+		</div>
+		<div>
+			<span style="font-size:27px; color:#2e4b94">Duitku Payment</span>
+		</div>
+	</div>
+	<hr/>
+	<button class="btn btn-info" id='checkout-button'>Loading Payment...</button>
+</div>
+<?php echo $content_bottom; ?>
+<?php echo $footer; ?>
+
+<script type="text/javascript">
+var libraryDuitkuCheckoutExecute = false;
+var libraryDuitkuCheckout = function(event) {
+	if (libraryDuitkuCheckoutExecute) {
+		return false;
+	}
+	libraryDuitkuCheckoutExecute = true;
+	var checkoutButton = document.getElementById('checkout-button');
+	var REFERENCE_NUMBER = '<?php echo $reference_number; ?>';
+	var countExecute = 0;
+	var checkoutExecuted = false;
+	var intervalFunction = 0;
+
+	function executeCheckout(){
+		intervalFunction = setInterval(function(){
+			try {
+				console.log('Duitku payment running.',++countExecute);
+				checkout.process(REFERENCE_NUMBER, {
+					successEvent: function(result){
+						checkoutButton.className = "btn btn-success";
+						checkoutButton.innerHTML = "Payment Success...";
+						window.location = '<?php echo $url_redirect; ?>' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
+					},
+					pendingEvent: function(result){
+						checkoutButton.className = "btn btn-warning";
+						checkoutButton.innerHTML = "Payment Pending...";
+						window.location = '<?php echo $url_redirect; ?>' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
+					},
+					errorEvent: function(result){
+						checkoutButton.className = "btn btn-danger";
+						checkoutButton.innerHTML = "Payment Error";
+						window.location = '<?php echo $url_redirect; ?>' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
+					},
+					closeEvent: function(result){
+						checkoutButton.className = "btn btn-default";
+						checkoutButton.innerHTML = "Payment Close";
+					}
+				});
+				checkoutExecuted = true;
+			} catch (e) {
+				if (countExecute >= 20) {
+					location.reload();
+					checkoutButton.className = "btn btn-info";
+					checkoutButton.innerHTML = "Reloading...";
+					return;
+				}
+			} finally {
+				clearInterval(intervalFunction);
+			}
+		}, 1000);
+	};
+
+	var clickCount = 0;
+	checkoutButton.className = "btn btn-success";
+	checkoutButton.innerHTML = 'Proceed to Payment';
+
+	checkoutButton.onclick = function(){
+		if (clickCount >= 2) {
+			location.reload();
+			checkoutButton.className = "btn btn-info";
+			checkoutButton.innerHTML = 'Reloading...';
+			return;
+		}
+		checkoutButton.className = "btn btn-success";
+		checkoutButton.innerHTML = 'Proceed to Payment';
+		executeCheckout();
+		clickCount++;
+	};
+
+	executeCheckout();
+};
+
+document.addEventListener("DOMContentLoaded", libraryDuitkuCheckout);
+setTimeout(function(){ console.log('calling'); libraryDuitkuCheckout(null); }, 30000);
+</script>

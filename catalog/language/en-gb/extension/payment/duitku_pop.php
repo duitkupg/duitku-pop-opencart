@@ -3,6 +3,7 @@
 // Heading
 $_['heading_title']     = 'Thank you for shopping with us ';
 $_['warning_title']     = 'Duitku Payment Warning';
+
 // Text
 $_['text_title']        = 'Duitku Payment';
 $_['text_response']     = 'Response from Payment:';

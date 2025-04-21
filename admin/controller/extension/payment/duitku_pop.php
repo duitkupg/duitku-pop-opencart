@@ -14,11 +14,11 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
     $this->config->get('currency');
 
     if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-      $this->model_setting_setting->editSetting('duitku_pop', $this->request->post);
+      $this->model_setting_setting->editSetting('payment_duitku_pop', $this->request->post);
 
       $this->session->data['success'] = $this->language->get('text_success');
 
-      $this->response->redirect($this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=payment', true));
+      $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true));
     }
 
     $language_entries = array(
@@ -33,13 +33,13 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
       'text_edit',
       'entry_merchant',
       'entry_api_key',
-      'entry_expiry_period',
-      'entry_ui_mode',
       'entry_test',
       'entry_total',
       'entry_order_status',
       'entry_geo_zone',
       'entry_status',
+      'entry_expiry_period',
+      'entry_ui_mode',
       'entry_sort_order',
       'entry_duitku_pop_success_mapping',
       'entry_duitku_pop_pending_mapping',
@@ -48,7 +48,11 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
       'entry_plugin_status',
       'entry_endpoint',
       'button_save',
-      'button_cancel'
+      'button_cancel',
+      'sandbox_status',
+      'production_status',
+      'popup_mode',
+      'redirect_mode',
     );
 
     foreach ($language_entries as $language_entry) {
@@ -65,46 +69,46 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
 
     $data['breadcrumbs'][] = array(
       'text' => $this->language->get('text_home'),
-      'href' => $this->url->link('common/dashboard', 'token=' . @$this->session->data['token'], true),
+      'href' => $this->url->link('common/dashboard', 'user_token=' . @$this->session->data['user_token'], true),
       // 'separator' => false
     );
 
     $data['breadcrumbs'][] = array(
       'text' => $this->language->get('text_payment'),
-      'href' => $this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=payment', true),
+      'href' => $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true),
       // 'separator' => ' :: '
     );
 
     $data['breadcrumbs'][] = array(
       'text' => $this->language->get('heading_title'),
-      'href' => $this->url->link('extension/payment/duitku_pop', 'token=' . $this->session->data['token'], true),
+      'href' => $this->url->link('extension/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true),
       // 'separator' => ' :: '
     );
 
-    $data['action'] = $this->url->link('extension/payment/duitku_pop', 'token=' . $this->session->data['token'], true);
+    $data['action'] = $this->url->link('extension/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true);
 
-    $data['cancel'] = $this->url->link('extension/extension', 'token=' . $this->session->data['token'] . '&type=payment', true);
+    $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
 
     $inputs = array(
-      'duitku_pop_merchant',
-      'duitku_pop_environment',
-      'duitku_pop_api_key',
-      'duitku_pop_endpoint',
-      'duitku_pop_debug',
-      'duitku_pop_total',
-      'duitku_pop_order_status_id',
-      'duitku_pop_geo_zone_id',
-      'duitku_pop_sort_order',
-      'duitku_pop_plugin_status',
-      'duitku_pop_expiry_period',
-      'duitku_pop_ui_mode',
-      'duitku_pop_status',
-      'duitku_pop_success_mapping',
-      'duitku_pop_pending_mapping',
-      'duitku_pop_failure_mapping',
-      'duitku_pop_challenge_mapping',
-      'duitku_pop_display_name',
-      'duitku_pop_sanitization',
+      'payment_duitku_pop_merchant',
+      'payment_duitku_pop_environment',
+      'payment_duitku_pop_api_key',
+      'payment_duitku_pop_endpoint',
+      'payment_duitku_pop_debug',
+      'payment_duitku_pop_total',
+      'payment_duitku_pop_order_status_id',
+      'payment_duitku_pop_geo_zone_id',
+      'payment_duitku_pop_sort_order',
+      'payment_duitku_pop_plugin_status',
+      'payment_duitku_pop_status',
+      'payment_duitku_pop_expiry_period',
+      'payment_duitku_pop_ui_mode',
+      'payment_duitku_pop_success_mapping',
+      'payment_duitku_pop_pending_mapping',
+      'payment_duitku_pop_failure_mapping',
+      'payment_duitku_pop_challenge_mapping',
+      'payment_duitku_pop_display_name',
+      'payment_duitku_pop_sanitization',
     );
 
     foreach ($inputs as $input) {
@@ -117,7 +121,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
 
     $this->load->model('localisation/order_status');
 
-    $data['statuses'] = array('duitku_pop_success_mapping', 'duitku_pop_pending_mapping', 'duitku_pop_failure_mapping');
+    $data['statuses'] = array('payment_duitku_pop_success_mapping', 'payment_duitku_pop_pending_mapping', 'payment_duitku_pop_failure_mapping');
     $data['order_statuses'] = $this->model_localisation_order_status->getOrderStatuses();
 
     $this->load->model('localisation/geo_zone');
@@ -148,20 +152,20 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
     }
 
     // check for empty values
-    if (!$this->request->post['duitku_pop_display_name']) {
+    if (!$this->request->post['payment_duitku_pop_display_name']) {
       $this->error['display_name'] = $this->language->get('error_display_name');
     }
 
     // check for empty values
-    if (!$this->request->post['duitku_pop_api_key']) {
+    if (!$this->request->post['payment_duitku_pop_api_key']) {
       $this->error['api_key'] = $this->language->get('error_api_key');
     }
 
-    if (!$this->request->post['duitku_pop_merchant']) {
+    if (!$this->request->post['payment_duitku_pop_merchant']) {
       $this->error['merchant_code'] = $this->language->get('error_merchant_code');
     }
 
-    if (!$this->request->post['duitku_pop_endpoint']) {
+    if (!$this->request->post['payment_duitku_pop_endpoint']) {
       $this->error['endpoint'] = $this->language->get('error_endpoint');
     }
 

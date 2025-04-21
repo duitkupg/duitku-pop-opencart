@@ -8,11 +8,11 @@ class ModelExtensionPaymentDuitkuPop extends Model
 
     $this->load->language('payment/duitku_pop');
 
-    $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('duitku_pop_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
+    $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('payment_duitku_pop_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 
-    if ($this->config->get('duitku_pop_total') > 0 && $this->config->get('duitku_pop_total') > $total) {
+    if ($this->config->get('payment_duitku_pop_total') > 0 && $this->config->get('payment_duitku_pop_total') > $total) {
       $status = false;
-    } elseif (!$this->config->get('duitku_pop_geo_zone_id')) {
+    } elseif (!$this->config->get('payment_duitku_pop_geo_zone_id')) {
       $status = true;
     } elseif ($query->num_rows) {
       $status = true;
@@ -35,8 +35,8 @@ class ModelExtensionPaymentDuitkuPop extends Model
     if ($status) {
       $method_data = array(
         'code'       => 'duitku_pop',
-        'title'      => $this->config->get('duitku_pop_display_name'),
-        'sort_order' => $this->config->get('duitku_pop_sort_order'),
+        'title'      => $this->config->get('payment_duitku_pop_display_name'),
+        'sort_order' => $this->config->get('payment_duitku_pop_sort_order'),
         'terms'    => ''
       );
     }

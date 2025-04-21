@@ -13,16 +13,16 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
 
     $data['process_order'] = 'extension/payment/duitku_pop/process_order';
 
-    if (version_compare(VERSION, '2.0.0.0') < 0) {
+    if (version_compare(VERSION, '3.0.0.0') < 0) {
       // CODE HERE IF LOWER
-      if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/duitkutpl.tpl')) {
-        return $this->load->view($this->config->get('config_template') . '/template/extension/payment/duitkutpl.tpl', $data);
+      if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/duitkutpl')) {
+        return $this->load->view($this->config->get('config_template') . '/template/extension/payment/duitkutpl', $data);
       } else {
-        return $this->load->view('default/template/extension/payment/duitkutpl.tpl', $data);
+        return $this->load->view('default/template/extension/payment/duitkutpl', $data);
       }
     } else {
       // CODE HERE IF HIGHER OR EQUAL
-      return $this->load->view('extension/payment/duitkutpl.tpl', $data);
+      return $this->load->view('extension/payment/duitkutpl', $data);
     }
   }
 
@@ -39,10 +39,10 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
     $order_info = $this->model_checkout_order->getOrder($this->session->data['order_id']);
 
     //generate Signature
-    $merchant_code = $this->config->get('duitku_pop_merchant');
-    $api_key = $this->config->get('duitku_pop_api_key');
-    $expiry_period = $this->config->get('duitku_pop_expiry_period');
-    $ui_mode = $this->config->get('duitku_pop_ui_mode');
+    $merchant_code = $this->config->get('payment_duitku_pop_merchant');
+    $api_key = $this->config->get('payment_duitku_pop_api_key');
+    $expiry_period = $this->config->get('payment_duitku_pop_expiry_period');
+    $ui_mode = $this->config->get('payment_duitku_pop_ui_mode');
     $order_id = $this->session->data['order_id'];
     $def_curr = $this->config->get('config_currency');
     $order_total = trim($this->currency->format($order_info['total'], 'IDR', '', false));
@@ -56,13 +56,13 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
     $params = array(
       'merchantOrderId' => (string)$order_id,
       'merchantUserInfo' => $order_info['email'],
+      'expiryPeriod' => (int)$expiry_period,
       'paymentAmount' => intval($order_total), //transform order into integer
       'paymentMethod' => "",
       'productDetails' => $this->config->get('config_name') . ' Order : #' . $order_id,
       'additionalParam' => $order_info['payment_firstname'] . " " . $order_info['payment_lastname'],
       'email' => $order_info['email'],
       'phoneNumber' => $order_info['telephone'],
-      'expiryPeriod' => (int)$expiry_period,
       'returnUrl' => $this->url->link('extension/payment/duitku_pop/payment_notification'),
       'callbackUrl' => $this->url->link('extension/payment/duitku_pop/payment_notification'),
     );
@@ -150,7 +150,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
 
     // echo "<pre>".var_export($params)."</pre>";
 
-    $url = $this->config->get('duitku_pop_endpoint') . '/api/merchant/createInvoice';
+    $url = $this->config->get('payment_duitku_pop_endpoint') . '/api/merchant/createInvoice';
 
     if (extension_loaded('curl')) {
       try {
@@ -187,6 +187,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
           $this->session->data['warning_message'] = $server_output;
           $warningUrl = $this->url->link('extension/payment/duitku_pop/warning', true);
           $this->response->setOutput($warningUrl);
+          // throw new \Exception($server_output);
         }
       } catch (Exception $e) {
         echo $e->getMessage();
@@ -199,14 +200,14 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
   public function warning()
   {
     $this->load->language('extension/payment/duitku_pop');
+    $this->document->setTitle($this->language->get('warning_title'));
+    $data['heading_title'] = $this->language->get('warning_title');
     if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
       $data['base_url'] = $this->config->get('config_ssl');
     } else {
       $data['base_url'] = $this->config->get('config_url');
     }
 
-    $this->document->setTitle($this->language->get('warning_title'));
-    $data['heading_title'] = $this->language->get('warning_title');
     $data['column_left'] = $this->load->controller('common/column_left');
     $data['column_right'] = $this->load->controller('common/column_right');
     $data['content_top'] = $this->load->controller('common/content_top');
@@ -216,16 +217,16 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
     $data['warning_message'] = $this->session->data['warning_message'];
     $data['current_amount'] = $this->session->data['current_amount'];
 
-    if (version_compare(VERSION, '2.0.0.0') < 0) {
+    if (version_compare(VERSION, '3.0.0.0') < 0) {
       // CODE HERE IF LOWER
       if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/duitku_pop_warning.tpl')) {
         $this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/extension/payment/duitku_pop_warning.tpl', $data));
       } else {
-        $this->response->setOutput($this->load->view('default/template/extension/payment/duitku_pop_warning.tpl', $data));
+        $this->response->setOutput($this->load->view('default/template/extension/payment/duitku_pop_warning', $data));
       }
     } else {
       // CODE HERE IF HIGHER OR EQUAL
-      $this->response->setOutput($this->load->view('extension/payment/duitku_pop_warning.tpl', $data));
+      $this->response->setOutput($this->load->view('extension/payment/duitku_pop_warning', $data));
     }
   }
 
@@ -239,14 +240,14 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
     $data['heading_title'] = $this->language->get('heading_title');
     $get_str = $_SERVER['QUERY_STRING'];
     $string_q = parse_str($get_str, $get_array);
-    $plugin_status = $this->config->get('duitku_pop_plugin_status');
+    $plugin_status = $this->config->get('payment_duitku_pop_plugin_status');
 
     if ($plugin_status == 'sandbox') {
       $url_lib = 'https://app-sandbox.duitku.com/lib/js/duitku.js';
     } elseif ($plugin_status == 'production') {
       $url_lib = 'https://app-prod.duitku.com/lib/js/duitku.js';
     }
-    
+
     $data['reference_number'] = $get_array['amp;reference'];
     $data['url_library'] = $url_lib;
     $data['url_redirect'] = $this->url->link('extension/payment/duitku_pop/payment_notification');
@@ -257,16 +258,16 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
     $data['footer'] = $this->load->controller('common/footer');
     $data['header'] = $this->load->controller('common/header');
     //$data['checkout_url'] = $this->url->link('checkout/cart');
-    if (version_compare(VERSION, '2.0.0.0') < 0) {
+    if (version_compare(VERSION, '3.0.0.0') < 0) {
       // CODE HERE IF LOWER
       if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/duitku_pop.tpl')) {
         $this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/extension/payment/duitku_pop.tpl', $data));
       } else {
-        $this->response->setOutput($this->load->view('default/template/extension/payment/duitku_pop.tpl', $data));
+        $this->response->setOutput($this->load->view('default/template/extension/payment/duitku_pop', $data));
       }
     } else {
       // CODE HERE IF HIGHER OR EQUAL
-      $this->response->setOutput($this->load->view('extension/payment/duitku_pop.tpl', $data));
+      $this->response->setOutput($this->load->view('extension/payment/duitku_pop', $data));
     }
   }
 
@@ -287,9 +288,9 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
       }
     }
 
-    $merchantcode = $this->config->get('duitku_pop_merchant');
-    $apikey = $this->config->get('duitku_pop_api_key');
-    $endpoint = $this->config->get('duitku_pop_endpoint');
+    $merchantcode = $this->config->get('payment_duitku_pop_merchant');
+    $apikey = $this->config->get('payment_duitku_pop_api_key');
+    $endpoint = $this->config->get('payment_duitku_pop_endpoint');
     $url = $endpoint . '/api/merchant/transactionStatus';
     $signature = md5($merchantcode . $order_id . $apikey);
     $params = array(
@@ -321,7 +322,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
           $data['statusMessage'] = $respondStatus->statusMessage;
           $data['fee'] = $respondStatus->fee;
 
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('duitku_pop_success_mapping'), 'Duitku payment success.');
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_duitku_pop_success_mapping'), 'Duitku payment success.');
           $this->cart->clear();
         } elseif ($respondStatus->statusCode == '01') {
           $data['merchantOrderId'] = $respondStatus->merchantOrderId;
@@ -331,7 +332,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
           $data['statusMessage'] = $respondStatus->statusMessage;
           $data['fee'] = $respondStatus->fee;
 
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('duitku_pop_pending_mapping'), 'Duitku payment pending.');
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_duitku_pop_pending_mapping'), 'Duitku payment pending.');
           $this->cart->clear();
         } elseif ($respondStatus->statusCode == '02') {
           $data['merchantOrderId'] = $respondStatus->merchantOrderId;
@@ -341,7 +342,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
           $data['statusMessage'] = $respondStatus->statusMessage;
           $data['fee'] = $respondStatus->fee;
 
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('duitku_pop_failure_mapping'), 'Duitku payment failed.');
+          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_duitku_pop_failure_mapping'), 'Duitku payment failed.');
         }
       } catch (Exception $e) {
         echo $e->getMessage();
@@ -359,16 +360,16 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
     $data['checkout_url'] = $this->url->link('checkout/cart');
     $data['home_url'] = $this->url->link('common/home');
 
-    if (version_compare(VERSION, '2.0.0.0') < 0) {
+    if (version_compare(VERSION, '3.0.0.0') < 0) {
       // CODE HERE IF LOWER
       if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/result_transaction.tpl')) {
         $this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/extension/payment/result_transaction.tpl', $data));
       } else {
-        $this->response->setOutput($this->load->view('default/template/extension/payment/result_transaction.tpl', $data));
+        $this->response->setOutput($this->load->view('default/template/extension/payment/result_transaction', $data));
       }
     } else {
       // CODE HERE IF HIGHER OR EQUAL
-      $this->response->setOutput($this->load->view('extension/payment/result_transaction.tpl', $data));
+      $this->response->setOutput($this->load->view('extension/payment/result_transaction', $data));
     }
   }
 }

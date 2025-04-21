@@ -1,7 +1,7 @@
-<?php echo $header; ?> <?php echo $column_left; ?> <?php echo $column_right; ?>
-<?php echo $content_top; ?>
+{{ header }} {{ column_left }} {{ column_right }}
+{{ content_top }}
 <div class="container" style="min-height: 300px;">
-	<script type="text/javascript" src="<?php echo $url_library; ?>"></script>
+	<script type="text/javascript" src={{ "#{url_library}" }}></script>
 	<style>
 	.flex-container {
 		display: flex;
@@ -24,8 +24,8 @@
 	<hr/>
 	<button class="btn btn-info" id='checkout-button'>Loading Payment...</button>
 </div>
-<?php echo $content_bottom; ?>
-<?php echo $footer; ?>
+{{ content_bottom }}
+{{ footer }}
 
 <script type="text/javascript">
 var libraryDuitkuCheckoutExecute = false;
@@ -35,7 +35,7 @@ var libraryDuitkuCheckout = function(event) {
 	}
 	libraryDuitkuCheckoutExecute = true;
 	var checkoutButton = document.getElementById('checkout-button');
-	var REFERENCE_NUMBER = '<?php echo $reference_number; ?>';
+	var REFERENCE_NUMBER = '{{ reference_number }}';
 	var countExecute = 0;
 	var checkoutExecuted = false;
 	var intervalFunction = 0;
@@ -48,17 +48,17 @@ var libraryDuitkuCheckout = function(event) {
 					successEvent: function(result){
 						checkoutButton.className = "btn btn-success";
 						checkoutButton.innerHTML = "Payment Success...";
-						window.location = '<?php echo $url_redirect; ?>' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
+						window.location = '{{url_redirect}}' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
 					},
 					pendingEvent: function(result){
 						checkoutButton.className = "btn btn-warning";
 						checkoutButton.innerHTML = "Payment Pending...";
-						window.location = '<?php echo $url_redirect; ?>' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
+						window.location = '{{url_redirect}}' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
 					},
 					errorEvent: function(result){
 						checkoutButton.className = "btn btn-danger";
 						checkoutButton.innerHTML = "Payment Error";
-						window.location = '<?php echo $url_redirect; ?>' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
+						window.location = '{{url_redirect}}' + "&merchantOrderId=" + result.merchantOrderId + "&resultCode=" + result.resultCode + "&reference=" + result.reference;
 					},
 					closeEvent: function(result){
 						checkoutButton.className = "btn btn-default";

@@ -1,0 +1,31 @@
+{% if errors %}
+	{% for error in errors %}
+		</div>
+		<div class="error">{{ error }}</div>
+	{% endfor %}
+{% else %}
+	</div>
+  <div class="buttons">
+    <div class="pull-right">
+    <input type="button" value="{{ button_confirm }}" id="button-confirm" class="btn btn-primary " data-loading-text="{{ text_loading }}"  />
+    </div>
+  </div>
+{% endif %}
+  <script>
+  $('#button-confirm').on('click', function() {
+    $.ajax({
+      url: 'index.php?route={{ process_order }}',
+      cache: false,
+      beforeSend: function() {
+        $('#button-confirm').button('loading');
+      },
+      complete: function() {
+        $('#button-confirm').button('reset');
+      },
+      success: function(data) {
+        location = data;
+      }
+    });
+  });
+  </script>
+    <!-- v2 VT-Web form -->

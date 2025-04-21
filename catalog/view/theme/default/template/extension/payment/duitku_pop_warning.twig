@@ -1,5 +1,5 @@
-<?php echo $header; ?> <?php echo $column_left; ?> <?php echo $column_right; ?>
-<?php echo $content_top; ?>
+{{ header }} {{ column_left }} {{ column_right }}
+{{ content_top }}
 <div class="container" style="min-height: 300px;">
 	<style>
 	.flex-container {
@@ -29,11 +29,13 @@
 	</div>
 	<hr/>
 	<div class="info-duitku">
-		<?php if($warning_message == "Minimum Payment 10000"){?>
-			<p>Minimum Payment is Rp.10000, Your payment amount is Rp.<?php echo $current_amount; ?></p>
-		<?php }else{ echo $warning_message; }?>
+		{% if(warning_message == "Minimum Payment 10000") %}
+		<p>Minimum Payment is Rp.10000, Your payment amount is Rp.{{ current_amount }}</p>
+		{% else %}
+		<p>{{ warning_message }}</p>
+		{% endif %}
 	</div>
-	<a href="<?php echo $base_url; ?>" class="btn btn-info" id='checkout-button'>Continue Shopping</a>
+	<a href="{{ base_url }}" class="btn btn-info" id='checkout-button'>Continue Shopping</a>
 </div>
-<?php echo $content_bottom; ?>
-<?php echo $footer; ?>
+{{ content_bottom }}
+{{ footer }}

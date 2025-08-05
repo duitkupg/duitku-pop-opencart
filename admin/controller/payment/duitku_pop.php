@@ -4,10 +4,10 @@ class DuitkuPop extends \Opencart\System\Engine\Controller {
 
   private $error = array();
 
-  public function index() {
-    $this->load->language('extension/payment/duitku_pop');
+  public function index(): void {
+    $this->load->language('extension/duitku_pop/payment/duitku_pop');
 
-    $this->load->language('cache/cleaner');
+    //$this->load->language('cache/cleaner');
     $this->document->setTitle($this->language->get('heading_title'));
 
     $this->load->model('setting/setting');
@@ -82,11 +82,11 @@ class DuitkuPop extends \Opencart\System\Engine\Controller {
 
     $data['breadcrumbs'][] = array(
       'text' => $this->language->get('heading_title'),
-      'href' => $this->url->link('extension/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true),
+      'href' => $this->url->link('extension/duitku_pop/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true),
       // 'separator' => ' :: '
     );
 
-    $data['action'] = $this->url->link('extension/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true);
+    $data['action'] = $this->url->link('extension/duitku_pop/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true);
 
     $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
 
@@ -142,13 +142,13 @@ class DuitkuPop extends \Opencart\System\Engine\Controller {
     {
       $data['curr'] = false;
     }
-    $this->response->setOutput($this->load->view('extension/payment/duitku_pop',$data));
+    $this->response->setOutput($this->load->view('extension/duitku_pop/payment/duitku_pop',$data));
 
   }
 
   protected function validate() {
 
-    if (!$this->user->hasPermission('modify', 'extension/payment/duitku_pop')) {
+    if (!$this->user->hasPermission('modify', 'extension/duitku_pop/payment/duitku_pop')) {
       $this->error['warning'] = $this->language->get('error_permission');
     }
 
@@ -176,5 +176,14 @@ class DuitkuPop extends \Opencart\System\Engine\Controller {
       return false;
     }
   }
+
+  private function separator():string
+    {
+        if (VERSION >= '4.0.2.0') {
+            return '.';
+        }
+
+        return '|';
+    }
 }
 ?>

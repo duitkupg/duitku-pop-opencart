@@ -5,7 +5,7 @@ $_['heading_title']      = 'Duitku Payment';
 // Text
 $_['text_payment']       = 'Payment';
 $_['text_success']       = 'Success: You have modified Duitku account details!';
-$_['text_duitku_pop'] = '<img src="view/image/payment/duitku_thumb.png" width="auto" height = "25" alt="Duitku Payment" title="Duitku" />';
+$_['text_duitku_pop'] = '<img src="../extension/duitku_pop/admin/view/image/payment/duitku_thumb.png" width="auto" height = "25" alt="Duitku Payment" title="Duitku" />';
 $_['text_live']          = 'Production';
 $_['text_successful']    = 'Always Successful';
 $_['text_fail']          = 'Always Fail';

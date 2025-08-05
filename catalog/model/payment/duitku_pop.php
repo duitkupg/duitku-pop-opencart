@@ -7,7 +7,7 @@ class DuitkuPop extends \Opencart\System\Engine\Model
   public function getMethods(array $address = []): array 
   {
 
-    $this->load->language('payment/duitku_pop');
+    $this->load->language('extension/duitku_pop/payment/duitku_pop');
 
     $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('payment_duitku_pop_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 

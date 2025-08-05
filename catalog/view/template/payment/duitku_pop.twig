@@ -1,7 +1,8 @@
 {{ header }} {{ column_left }} {{ column_right }}
-{{ content_top }}
-<div class="container" style="min-height: 300px;">
-	<script type="text/javascript" src={{ "#{url_library}" }}></script>
+<div class="d-flex flex-column min-vh-50">
+  <div class="container">{{ content_top }}
+
+  <script type="text/javascript" src={{ "#{url_library}" }}></script>
 	<style>
 	.flex-container {
 		display: flex;
@@ -23,9 +24,11 @@
 	</div>
 	<hr/>
 	<button class="btn btn-info" id='checkout-button'>Loading Payment...</button>
+	{{ content_bottom }}
+	</div>
 </div>
-{{ content_bottom }}
 {{ footer }}
+
 
 <script type="text/javascript">
 var libraryDuitkuCheckoutExecute = false;

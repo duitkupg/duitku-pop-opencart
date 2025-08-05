@@ -8,7 +8,6 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
 
   public function index()
   {
-
     $data['errors'] = array();
     $data['button_confirm'] = $this->language->get('button_confirm');
 
@@ -35,6 +34,8 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
    */
   public function process_order()
   {
+    $log_filename = 'duitku-pop.log';
+    $log = new \Opencart\System\Library\Log($log_filename);
     $this->load->model('extension/duitku_pop/payment/duitku_pop');
     $this->load->model('checkout/order');
     //$this->load->model('total/shipping');
@@ -48,7 +49,7 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
     $ui_mode = $this->config->get('payment_duitku_pop_ui_mode');
     $order_id = $this->session->data['order_id'];
     $def_curr = $this->config->get('config_currency');
-    $order_total = trim($this->currency->format($order_info['total'], 'IDR', '', false));
+    $order_total = trim($this->currency->format($order_info['total'], 'IDR', false, false));
     //$signature = md5($merchant_code . $order_id . intval($order_total) . $api_key);
 
     $tstamp = round(microtime(true) * 1000);
@@ -160,15 +161,17 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
 
     $url = $baseUrl.'/api/merchant/createInvoice';
 
-    if (extension_loaded('curl')) {
-      try {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    $header = array(
           'Content-Type: application/json',
           'x-duitku-signature: ' . $header_signature,
           'x-duitku-timestamp: ' . $tstamp,
           'x-duitku-merchantCode: ' . $mcode
-        ));
+    );
+
+    if (extension_loaded('curl')) {
+      try {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
@@ -181,40 +184,45 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
         curl_close($ch);
 
         $respond = json_decode($server_output);
-        if (isset($respond->statusCode)) {
-          if ($respond->statusCode == '00') {
-            if ($ui_mode == 'popup') {
-              $redirUrl = $this->url->link('extension/duitku_pop/payment/duitku_pop'. $this->separator() .'proceed', 'reference=' . $respond->reference, true);
-              $this->response->setOutput($redirUrl);
-            } else {
-              $this->response->setOutput($respond->paymentUrl);
-            }
+        $log->write('Request : ' . json_encode($params, JSON_PRETTY_PRINT));
+        $log->write('Header : ' . json_encode($header,JSON_PRETTY_PRINT));
+        $log->write('Response : ' . json_encode($respond != null ? $respond : $server_output ,JSON_PRETTY_PRINT));
+        
+        unset($this->session->data['order_id']);
+
+        if (isset($respond->statusCode) && $respond->statusCode == '00') {
+          $this->model_checkout_order->addHistory($order_id, $this->config->get('payment_duitku_pop_pending_mapping'), 'Duitku payment pending.', true, false);
+          $this->cart->clear();
+          if ($ui_mode == 'popup') {
+            $redirUrl = $this->url->link('extension/duitku_pop/payment/duitku_pop'. $this->separator() .'proceed', 'reference=' . $respond->reference, true);
+            $this->response->setOutput($redirUrl);
+          } else {
+            $this->response->setOutput($respond->paymentUrl);
           }
         } else {
           $failureUrl = $this->url->link('extension/duitku_pop/payment/duitku_pop'. $this->separator() .'failure', true);
           $this->response->setOutput($failureUrl);
-          // throw new \Exception($server_output);
         }
-      } catch (Exception $e) {
-        echo $e->getMessage());
+      } catch (\Exception $e) {
+        $log->write('Error : ' . $e->getMessage());
         $failureUrl = $this->url->link('extension/duitku_pop/payment/duitku_pop'. $this->separator() .'failure', true);
         $this->response->setOutput($failureUrl);
       }
     } else {
-      throw new Exception("Duitku payment need curl extension, please enable curl extension in your web server", "duitku");
+      throw new \Exception("Duitku payment need curl extension, please enable curl extension in your web server", "duitku");
     }
   }
 
-  public function warning()
-  {
-    $this->load->language('extension/payment/duitku_pop');
-    $this->document->setTitle($this->language->get('warning_title'));
-    $data['heading_title'] = $this->language->get('warning_title');
-    if (isset($this->request->server['HTTPS']) && (($this->request->server['HTTPS'] == 'on') || ($this->request->server['HTTPS'] == '1'))) {
-      $data['base_url'] = $this->config->get('config_ssl');
-    } else {
-      $data['base_url'] = $this->config->get('config_url');
-    }
+  /*
+  * assume there is no failure in bank transfer but waiting for transfer
+  */
+  public function pending() {
+    $this->load->language('extension/duitku_pop/payment/duitku_pop');
+
+    $this->document->setTitle($this->language->get('heading_title'));
+
+    $data['heading_title'] = $this->language->get('heading_title');
+    $data['text_failure'] = $this->language->get('text_pending');
 
     $data['column_left'] = $this->load->controller('common/column_left');
     $data['column_right'] = $this->load->controller('common/column_right');
@@ -222,20 +230,51 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
     $data['content_bottom'] = $this->load->controller('common/content_bottom');
     $data['footer'] = $this->load->controller('common/footer');
     $data['header'] = $this->load->controller('common/header');
-    $data['warning_message'] = $this->session->data['warning_message'];
-    $data['current_amount'] = $this->session->data['current_amount'];
+    //$data['checkout_url'] = $this->url->link('checkout/cart');
 
-    if (version_compare(VERSION, '3.0.0.0') < 0) {
+     if(version_compare(VERSION, '3.0.0.0') < 0) {
       // CODE HERE IF LOWER
-      if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/payment/duitku_pop_warning.tpl')) {
-        $this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/extension/payment/duitku_pop_warning.tpl', $data));
+      if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/duitku_pop/payment/duitku_checkout_va')) {
+        $this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/extension/duitku_pop/payment/duitku_checkout_va', $data));
       } else {
-        $this->response->setOutput($this->load->view('default/template/extension/payment/duitku_pop_warning', $data));
+        $this->response->setOutput($this->load->view('default/template/extension/duitku_pop/payment/duitku_checkout_va', $data));
       }
     } else {
       // CODE HERE IF HIGHER OR EQUAL
-      $this->response->setOutput($this->load->view('extension/payment/duitku_pop_warning', $data));
-    }
+      $this->response->setOutput($this->load->view('extension/duitku_pop/payment/duitku_checkout_va', $data));
+    }        
+  }
+
+  /*
+  * when failed create transaction or failed to pay redirect to here
+  */
+  public function failure() {
+    $this->load->language('extension/duitku_pop/payment/duitku_pop');
+
+    $this->document->setTitle($this->language->get('heading_title'));
+
+    $data['heading_title'] = $this->language->get('heading_title');
+    $data['text_failure'] = $this->language->get('text_failure');
+
+    $data['column_left'] = $this->load->controller('common/column_left');
+    $data['column_right'] = $this->load->controller('common/column_right');
+    $data['content_top'] = $this->load->controller('common/content_top');
+    $data['content_bottom'] = $this->load->controller('common/content_bottom');
+    $data['footer'] = $this->load->controller('common/footer');
+    $data['header'] = $this->load->controller('common/header');
+    $data['checkout_url'] = $this->url->link('checkout/cart');
+
+     if(version_compare(VERSION, '3.0.0.0') < 0) {
+      // CODE HERE IF LOWER
+      if (file_exists(DIR_TEMPLATE . $this->config->get('config_template') . '/template/extension/duitku_pop/payment/duitku_checkout_failure.tpl')) {
+        $this->response->setOutput($this->load->view($this->config->get('config_template') . '/template/extension/duitku_pop/payment/duitku_checkout_failure.tpl', $data));
+      } else {
+        $this->response->setOutput($this->load->view('default/template/extension/duitku_pop/payment/duitku_checkout_failure', $data));
+      }
+    } else {
+      // CODE HERE IF HIGHER OR EQUAL
+      $this->response->setOutput($this->load->view('extension/duitku_pop/payment/duitku_checkout_failure', $data));
+    }        
   }
 
   public function proceed()
@@ -304,23 +343,59 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
 
   public function payment_notification()
   {
+    $log_filename = 'duitku-pop.log';
+    $log = new \Opencart\System\Library\Log($log_filename);
     $this->load->model('checkout/order');
     $this->load->model('extension/duitku_pop/payment/duitku_pop');
 
+    if (empty($_REQUEST['resultCode']) || empty($_REQUEST['merchantOrderId']) || empty($_REQUEST['signature'])) {
+      header("HTTP/1.1 404 Not Found");
+      $log->write("Wrong query string please contact admin.");
+      die;
+    }
+
     if (!empty($_REQUEST['merchantOrderId'])) {
-      $order_id = $_REQUEST['merchantOrderId'];
+      $order_id = stripslashes($_REQUEST['merchantOrderId']);
     } else {
       $str = $_SERVER['QUERY_STRING'];
       parse_str($str, $output);
-      if (!empty($output['amp;merchantOrderId'])) {
-        $order_id = $output['amp;merchantOrderId'];
+      if (!empty($output['merchantOrderId'])) {
+        $order_id = $output['merchantOrderId'];
       } else {
         $order_id = $output['merchantOrderId'];
       }
     }
 
+    $status = stripslashes($_REQUEST['resultCode']);
+
     $merchantcode = $this->config->get('payment_duitku_pop_merchant');
     $apikey = $this->config->get('payment_duitku_pop_api_key');
+
+    $signatureCheck = md5($merchantcode . intval($_REQUEST['amount']) . $_REQUEST['merchantOrderId'] . $apikey);
+
+    $order_info = $this->model_checkout_order->getOrder($order_id);
+    $current_status_name = $order_info['order_status'];
+
+    if ($current_status_name == $this->config->get('payment_duitku_pop_success_mapping')){
+      header("HTTP/1.1 200");
+      $log->write("Order Already Completed for Order : ".$order_id );
+      die;
+    }
+
+    if ($_REQUEST['signature'] != $signatureCheck){
+      header("HTTP/1.1 401 Unauthorized");
+      $log->write("Wrong Signature for Order : ".$order_id );
+      die;
+    }
+
+    $log->write("Callback Recieved : " . json_encode($_REQUEST, JSON_PRETTY_PRINT));
+    //check if order id is in the database
+    if (!$order_info) {
+      header("HTTP/1.1 404 Not Found");
+      $log->write("Orders Not Found for Order : ".$order_id );
+      die;
+    }
+
     //Check Transaction
     if ($this->config->get('payment_duitku_pop_plugin_status') == 'production'){
       $baseUrl = 'https://api-prod.duitku.com';
@@ -350,41 +425,21 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
         curl_close($ch);
 
         $respondStatus = json_decode($server_output);
-        if ($respondStatus->statusCode == '00') {
-          $data['merchantOrderId'] = $respondStatus->merchantOrderId;
-          $data['reference'] = $respondStatus->reference;
-          $data['amount'] = $respondStatus->amount;
-          $data['statusCode'] = $respondStatus->statusCode;
-          $data['statusMessage'] = $respondStatus->statusMessage;
-          $data['fee'] = $respondStatus->fee;
-
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_duitku_pop_success_mapping'), 'Duitku payment success.');
-          $this->cart->clear();
-        } elseif ($respondStatus->statusCode == '01') {
-          $data['merchantOrderId'] = $respondStatus->merchantOrderId;
-          $data['reference'] = $respondStatus->reference;
-          $data['amount'] = $respondStatus->amount;
-          $data['statusCode'] = $respondStatus->statusCode;
-          $data['statusMessage'] = $respondStatus->statusMessage;
-          $data['fee'] = $respondStatus->fee;
-
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_duitku_pop_pending_mapping'), 'Duitku payment pending.');
-          $this->cart->clear();
-        } elseif ($respondStatus->statusCode == '02') {
-          $data['merchantOrderId'] = $respondStatus->merchantOrderId;
-          $data['reference'] = $respondStatus->reference;
-          $data['amount'] = $respondStatus->amount;
-          $data['statusCode'] = $respondStatus->statusCode;
-          $data['statusMessage'] = $respondStatus->statusMessage;
-          $data['fee'] = $respondStatus->fee;
-
-          $this->model_checkout_order->addOrderHistory($order_id, $this->config->get('payment_duitku_pop_failure_mapping'), 'Duitku payment failed.');
+        if ($respondStatus->statusCode == '00' && $status == '00') {
+          header("HTTP/1.1 200 OK");
+          $log->write("Callback Success for Order : ".$order_id );
+          $this->model_checkout_order->addHistory($order_id, $this->config->get('payment_duitku_pop_success_mapping'), 'Duitku payment success.');
+        } elseif ($respondStatus->statusCode == '01' && $status == '01') {
+          header("HTTP/1.1 200 OK");
+          $log->write("Callback Failed for Order : ".$order_id );
+          $this->model_checkout_order->addHistory($order_id, $this->config->get('payment_duitku_pop_failure_mapping'), 'Duitku payment failed.', true, false);
         }
-      } catch (Exception $e) {
-        echo $e->getMessage();
+      } catch (\Exception $e) {
+        $this->log->write('Error : ' . $e->getMessage());
+        //echo "Validation Error";
       }
     } else {
-      throw new Exception("Duitku payment need curl extension, please enable curl extension in your web server", "duitku");
+      throw new \Exception("Duitku payment need curl extension, please enable curl extension in your web server", "duitku");
     }
   }
 

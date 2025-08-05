@@ -6,8 +6,15 @@ class DuitkuPop extends \Opencart\System\Engine\Model
 
   public function getMethods(array $address = []): array 
   {
-
     $this->load->language('extension/duitku_pop/payment/duitku_pop');
+
+    $totals = [];
+		$taxes = $this->cart->getTaxes();
+		$total = 0;
+
+		$this->load->model('checkout/cart');
+
+		($this->model_checkout_cart->getTotals)($totals, $taxes, $total);   
 
     $query = $this->db->query("SELECT * FROM " . DB_PREFIX . "zone_to_geo_zone WHERE geo_zone_id = '" . (int)$this->config->get('payment_duitku_pop_geo_zone_id') . "' AND country_id = '" . (int)$address['country_id'] . "' AND (zone_id = '" . (int)$address['zone_id'] . "' OR zone_id = '0')");
 
@@ -34,10 +41,16 @@ class DuitkuPop extends \Opencart\System\Engine\Model
     $method_data = array();
 
     if ($status) {
+      $option_data['duitku_pop'] = [
+				'code' => 'duitku_pop.duitku_pop',
+				'name' => $this->config->get('payment_duitku_pop_display_name'),
+			];
+
       $method_data = array(
         'code'       => 'duitku_pop',
-        'title'      => $this->config->get('payment_duitku_pop_display_name'),
+        'name'      => $this->config->get('payment_duitku_pop_display_name'),
         'sort_order' => $this->config->get('payment_duitku_pop_sort_order'),
+        'option'     => $option_data,
         'terms'    => ''
       );
     }

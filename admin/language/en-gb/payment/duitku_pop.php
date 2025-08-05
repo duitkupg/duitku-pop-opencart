@@ -1,6 +1,6 @@
 <?php
 // Heading
-$_['heading_title']      = 'Duitku Payment';
+$_['heading_title']      = 'Duitku Payment POP';
 
 // Text
 $_['text_payment']       = 'Payment';
@@ -11,7 +11,7 @@ $_['text_successful']    = 'Always Successful';
 $_['text_fail']          = 'Always Fail';
 $_['text_edit']          = 'Configure Duitku Payment Gateway';
 
-$_['entry_plugin_status']  = 'Plugin Status';
+$_['entry_plugin_status']  = 'Environment';
 $_['entry_endpoint']     = 'URL Endpoint';
 $_['entry_merchant']     = 'Merchant Code';
 $_['entry_api_key']      = 'Merchant API Key';

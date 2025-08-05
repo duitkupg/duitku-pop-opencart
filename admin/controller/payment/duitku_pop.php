@@ -133,6 +133,10 @@ class DuitkuPop extends \Opencart\System\Engine\Controller {
     $data['header'] = $this->load->controller('common/header');
     $data['footer'] = $this->load->controller('common/footer');
 
+    $data['save'] = $this->url->link('extension/duitku_pop/payment/duitku_pop' . $this->separator() . 'save', 'user_token=' . $this->session->data['user_token']);
+    $data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment');
+
+
 
     if(!$this->currency->has('IDR'))
     {
@@ -166,9 +170,9 @@ class DuitkuPop extends \Opencart\System\Engine\Controller {
       $this->error['merchant_code'] = $this->language->get('error_merchant_code');
     }
 
-    if (!$this->request->post['payment_duitku_pop_endpoint']) {
-      $this->error['endpoint'] = $this->language->get('error_endpoint');
-    }
+    // if (!$this->request->post['payment_duitku_pop_endpoint']) {
+    //   $this->error['endpoint'] = $this->language->get('error_endpoint');
+    // }
 
     if (!$this->error) {
       return true;

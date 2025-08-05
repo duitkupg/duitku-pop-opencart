@@ -152,8 +152,13 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
     $params['itemDetails'] = $item_details;
 
     // echo "<pre>".var_export($params)."</pre>";
+    if ($this->config->get('payment_duitku_pop_plugin_status') == 'production'){
+      $baseUrl = 'https://api-prod.duitku.com';
+    } else {
+      $baseUrl = 'https://api-sandbox.duitku.com';
+    }
 
-    $url = $this->config->get('payment_duitku_pop_endpoint') . '/api/merchant/createInvoice';
+    $url = $baseUrl.'/api/merchant/createInvoice';
 
     if (extension_loaded('curl')) {
       try {
@@ -316,8 +321,13 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
 
     $merchantcode = $this->config->get('payment_duitku_pop_merchant');
     $apikey = $this->config->get('payment_duitku_pop_api_key');
-    $endpoint = $this->config->get('payment_duitku_pop_endpoint');
-    $url = $endpoint . '/api/merchant/transactionStatus';
+    //Check Transaction
+    if ($this->config->get('payment_duitku_pop_plugin_status') == 'production'){
+      $baseUrl = 'https://api-prod.duitku.com';
+    } else {
+      $baseUrl = 'https://api-sandbox.duitku.com';
+    }
+    $url = $baseUrl . '/api/merchant/transactionStatus';
     $signature = md5($merchantcode . $order_id . $apikey);
     $params = array(
       'merchantCode' => $merchantcode,

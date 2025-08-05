@@ -1,5 +1,6 @@
 <?php
-class ControllerExtensionPaymentDuitkuPop extends Controller {
+namespace Opencart\Admin\Controller\Extension\DuitkuPop\Payment;
+class DuitkuPop extends \Opencart\System\Engine\Controller {
 
   private $error = array();
 

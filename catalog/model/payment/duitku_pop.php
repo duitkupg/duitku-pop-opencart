@@ -1,9 +1,10 @@
 <?php
+namespace Opencart\Catalog\Model\Extension\DuitkuPop\Payment;
 
-class ModelExtensionPaymentDuitkuPop extends Model
+class DuitkuPop extends \Opencart\System\Engine\Model
 {
 
-  public function getMethod($address, $total)
+  public function getMethods(array $address = []): array 
   {
 
     $this->load->language('payment/duitku_pop');

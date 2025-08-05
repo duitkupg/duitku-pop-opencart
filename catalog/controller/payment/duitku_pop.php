@@ -1,6 +1,9 @@
 <?php
+namespace Opencart\Catalog\Controller\Extension\DuitkuPop\Payment;
 
-class ControllerExtensionPaymentDuitkuPop extends Controller
+use Symfony\Component\Validator\Constraints\NotNull;
+
+class DuitkuPop extends \Opencart\System\Engine\Controller
 {
 
   public function index()

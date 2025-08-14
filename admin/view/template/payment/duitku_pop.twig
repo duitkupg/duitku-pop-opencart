@@ -108,10 +108,13 @@
             </div>
           </div>
 
-          <div class="mb-3 row">
+          <div class="mb-3 row required">
             <label for="payment_duitku_pop_expiry_period" class="col-sm-2 col-form-label">{{ entry_expiry_period }}</label>
             <div class="col-sm-10">
               <input type="text" name="payment_duitku_pop_expiry_period" value="{{ payment_duitku_pop_expiry_period }}" placeholder="The validity period of the transaction before it expires. (e.g 1 - 1440 (min))" id="payment_duitku_pop_expiry_period" class="form-control" />
+              {% if error.expired_period %}
+                <div class="text-danger">{{ error.expired_period }}</div>
+              {% endif %}
             </div>
           </div>
 

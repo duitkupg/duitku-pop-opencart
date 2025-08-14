@@ -35,6 +35,7 @@ $_['popup_mode'] = 'Popup';
 $_['redirect_mode'] = 'Redirect';
 
 // Error
+$_['error_expired_period']   = 'Expired Period is required! 1 - 1440 ( minute )';
 $_['error_permission'] = 'Warning: You do not have permission to modify the Duitku Payment!';
 $_['error_merchant_code'] = 'Merchant Code is required!';
 $_['error_api_key'] = 'API Key is required!';

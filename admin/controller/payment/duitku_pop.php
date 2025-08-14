@@ -170,6 +170,10 @@ class DuitkuPop extends \Opencart\System\Engine\Controller {
       $this->error['merchant_code'] = $this->language->get('error_merchant_code');
     }
 
+    if (!$this->request->post['payment_duitku_pop_expiry_period'] OR $this->request->post['payment_duitku_pop_expiry_period'] < 0 OR $this->request->post['payment_duitku_pop_expiry_period'] > 1440 ) {
+      $this->error['expired_period'] = $this->language->get('error_expired_period');
+    } 
+
     // if (!$this->request->post['payment_duitku_pop_endpoint']) {
     //   $this->error['endpoint'] = $this->language->get('error_endpoint');
     // }

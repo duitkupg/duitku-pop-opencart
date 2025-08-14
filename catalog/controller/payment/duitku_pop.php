@@ -184,6 +184,7 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
         curl_close($ch);
 
         $respond = json_decode($server_output);
+        $log->write('URL: ' . json_encode($url));
         $log->write('Request : ' . json_encode($params, JSON_PRETTY_PRINT));
         $log->write('Header : ' . json_encode($header,JSON_PRETTY_PRINT));
         $log->write('Response : ' . json_encode($respond != null ? $respond : $server_output ,JSON_PRETTY_PRINT));
@@ -191,6 +192,7 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
         unset($this->session->data['order_id']);
 
         if (isset($respond->statusCode) && $respond->statusCode == '00') {
+          //Add record order if success, if not success it wont recorded
           $this->model_checkout_order->addHistory($order_id, $this->config->get('payment_duitku_pop_pending_mapping'), 'Duitku payment pending.', true, false);
           $this->cart->clear();
           if ($ui_mode == 'popup') {
@@ -374,8 +376,15 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
     $signatureCheck = md5($merchantcode . intval($_REQUEST['amount']) . $_REQUEST['merchantOrderId'] . $apikey);
 
     $order_info = $this->model_checkout_order->getOrder($order_id);
-    $current_status_name = $order_info['order_status'];
+    
+    //check if order id is in the database
+    if (!$order_info) {
+      header("HTTP/1.1 404 Not Found");
+      $log->write("Orders Not Found for Order : ".$order_id );
+      die;
+    }
 
+    $current_status_name = $order_info['order_status_id'];
     if ($current_status_name == $this->config->get('payment_duitku_pop_success_mapping')){
       header("HTTP/1.1 200");
       $log->write("Order Already Completed for Order : ".$order_id );
@@ -389,12 +398,6 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
     }
 
     $log->write("Callback Recieved : " . json_encode($_REQUEST, JSON_PRETTY_PRINT));
-    //check if order id is in the database
-    if (!$order_info) {
-      header("HTTP/1.1 404 Not Found");
-      $log->write("Orders Not Found for Order : ".$order_id );
-      die;
-    }
 
     //Check Transaction
     if ($this->config->get('payment_duitku_pop_plugin_status') == 'production'){
@@ -423,13 +426,17 @@ class DuitkuPop extends \Opencart\System\Engine\Controller
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $server_output = curl_exec($ch);
         curl_close($ch);
+        $respond = json_decode($server_output);
+        $log->write("URL Check transaction: " . $url); 
+        $log->write("Request Check Transaction : " . json_encode($params, JSON_PRETTY_PRINT));   
+        $log->write("Response Check Transaction : " . json_encode($respond != null ? $respond : $server_output ,JSON_PRETTY_PRINT));
 
         $respondStatus = json_decode($server_output);
         if ($respondStatus->statusCode == '00' && $status == '00') {
           header("HTTP/1.1 200 OK");
           $log->write("Callback Success for Order : ".$order_id );
           $this->model_checkout_order->addHistory($order_id, $this->config->get('payment_duitku_pop_success_mapping'), 'Duitku payment success.');
-        } elseif ($respondStatus->statusCode == '01' && $status == '01') {
+        } else {
           header("HTTP/1.1 200 OK");
           $log->write("Callback Failed for Order : ".$order_id );
           $this->model_checkout_order->addHistory($order_id, $this->config->get('payment_duitku_pop_failure_mapping'), 'Duitku payment failed.', true, false);

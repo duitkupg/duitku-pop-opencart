@@ -1,6 +1,7 @@
 {{ header }} {{ column_left }} {{ column_right }}
-{{ content_top }}
-<div class="container" style="min-height: 300px;">
+<div class="d-flex flex-column min-vh-50">
+  <div class="container">{{ content_top }}
+
 	<style>
 	.flex-container {
 		display: flex;
@@ -21,7 +22,7 @@
 	</style>
 	<div class="flex-container">
 		<div>
-			<img src="catalog/view/image/payment/logo.png" alt="img-duitku" style="height: 45px; width: auto;"/>
+			<img src="extension/duitku_pop/catalog/view/image/payment/logo.png" alt="img-duitku" style="height: 45px; width: auto;"/>
 		</div>
 		<div>
 			<span style="font-size:27px; color:#2e4b94">Duitku Payment</span>
@@ -36,6 +37,8 @@
 		{% endif %}
 	</div>
 	<a href="{{ base_url }}" class="btn btn-info" id='checkout-button'>Continue Shopping</a>
+	
+	{{ content_bottom }}
+	</div>
 </div>
-{{ content_bottom }}
 {{ footer }}

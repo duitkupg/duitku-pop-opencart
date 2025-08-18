@@ -1,12 +1,10 @@
 {% if errors %}
 	{% for error in errors %}
-		</div>
 		<div class="error">{{ error }}</div>
 	{% endfor %}
 {% else %}
-	</div>
   <div class="buttons">
-    <div class="pull-right">
+    <div class="float-end">
     <input type="button" value="{{ button_confirm }}" id="button-confirm" class="btn btn-primary " data-loading-text="{{ text_loading }}"  />
     </div>
   </div>

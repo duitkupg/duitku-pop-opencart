@@ -1,7 +1,8 @@
 {{ header }} {{ column_left }} {{ column_right }}
-{{ content_top }}
-<div class="container" style="min-height: 300px;">
-	<script type="text/javascript" src={{ "#{url_library}" }}></script>
+<div class="d-flex flex-column min-vh-50">
+  <div class="container">{{ content_top }}
+
+  <script type="text/javascript" src={{ "#{url_library}" }}></script>
 	<style>
 	.flex-container {
 		display: flex;
@@ -15,7 +16,7 @@
 	</style>
 	<div class="flex-container">
 		<div>
-			<img src="catalog/view/image/payment/logo.png" alt="img-duitku" style="height: 45px; width: auto;"/>
+			<img src="extension/duitku_pop/catalog/view/image/payment/logo.png" alt="img-duitku" style="height: 45px; width: auto;"/>
 		</div>
 		<div>
 			<span style="font-size:27px; color:#2e4b94">Duitku Payment</span>
@@ -23,9 +24,11 @@
 	</div>
 	<hr/>
 	<button class="btn btn-info" id='checkout-button'>Loading Payment...</button>
+	{{ content_bottom }}
+	</div>
 </div>
-{{ content_bottom }}
 {{ footer }}
+
 
 <script type="text/javascript">
 var libraryDuitkuCheckoutExecute = false;

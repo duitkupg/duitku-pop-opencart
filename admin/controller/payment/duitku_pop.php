@@ -1,12 +1,13 @@
 <?php
-class ControllerExtensionPaymentDuitkuPop extends Controller {
+namespace Opencart\Admin\Controller\Extension\DuitkuPop\Payment;
+class DuitkuPop extends \Opencart\System\Engine\Controller {
 
   private $error = array();
 
-  public function index() {
-    $this->load->language('extension/payment/duitku_pop');
+  public function index(): void {
+    $this->load->language('extension/duitku_pop/payment/duitku_pop');
 
-    $this->load->language('cache/cleaner');
+    //$this->load->language('cache/cleaner');
     $this->document->setTitle($this->language->get('heading_title'));
 
     $this->load->model('setting/setting');
@@ -81,11 +82,11 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
 
     $data['breadcrumbs'][] = array(
       'text' => $this->language->get('heading_title'),
-      'href' => $this->url->link('extension/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true),
+      'href' => $this->url->link('extension/duitku_pop/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true),
       // 'separator' => ' :: '
     );
 
-    $data['action'] = $this->url->link('extension/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true);
+    $data['action'] = $this->url->link('extension/duitku_pop/payment/duitku_pop', 'user_token=' . $this->session->data['user_token'], true);
 
     $data['cancel'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment', true);
 
@@ -132,6 +133,10 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
     $data['header'] = $this->load->controller('common/header');
     $data['footer'] = $this->load->controller('common/footer');
 
+    $data['save'] = $this->url->link('extension/duitku_pop/payment/duitku_pop' . $this->separator() . 'save', 'user_token=' . $this->session->data['user_token']);
+    $data['back'] = $this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=payment');
+
+
 
     if(!$this->currency->has('IDR'))
     {
@@ -141,13 +146,13 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
     {
       $data['curr'] = false;
     }
-    $this->response->setOutput($this->load->view('extension/payment/duitku_pop',$data));
+    $this->response->setOutput($this->load->view('extension/duitku_pop/payment/duitku_pop',$data));
 
   }
 
   protected function validate() {
 
-    if (!$this->user->hasPermission('modify', 'extension/payment/duitku_pop')) {
+    if (!$this->user->hasPermission('modify', 'extension/duitku_pop/payment/duitku_pop')) {
       $this->error['warning'] = $this->language->get('error_permission');
     }
 
@@ -165,9 +170,13 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
       $this->error['merchant_code'] = $this->language->get('error_merchant_code');
     }
 
-    if (!$this->request->post['payment_duitku_pop_endpoint']) {
-      $this->error['endpoint'] = $this->language->get('error_endpoint');
-    }
+    if (!$this->request->post['payment_duitku_pop_expiry_period'] OR $this->request->post['payment_duitku_pop_expiry_period'] < 0 OR $this->request->post['payment_duitku_pop_expiry_period'] > 1440 ) {
+      $this->error['expired_period'] = $this->language->get('error_expired_period');
+    } 
+
+    // if (!$this->request->post['payment_duitku_pop_endpoint']) {
+    //   $this->error['endpoint'] = $this->language->get('error_endpoint');
+    // }
 
     if (!$this->error) {
       return true;
@@ -175,5 +184,14 @@ class ControllerExtensionPaymentDuitkuPop extends Controller {
       return false;
     }
   }
+
+  private function separator():string
+    {
+        if (VERSION >= '4.0.2.0') {
+            return '.';
+        }
+
+        return '|';
+    }
 }
 ?>

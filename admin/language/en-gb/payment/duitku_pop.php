@@ -1,17 +1,17 @@
 <?php
 // Heading
-$_['heading_title']      = 'Duitku Payment';
+$_['heading_title']      = 'Duitku Payment POP';
 
 // Text
 $_['text_payment']       = 'Payment';
 $_['text_success']       = 'Success: You have modified Duitku account details!';
-$_['text_duitku_pop'] = '<img src="view/image/payment/duitku_thumb.png" width="auto" height = "25" alt="Duitku Payment" title="Duitku" />';
+$_['text_duitku_pop'] = '<img src="../extension/duitku_pop/admin/view/image/payment/duitku_thumb.png" width="auto" height = "25" alt="Duitku Payment" title="Duitku" />';
 $_['text_live']          = 'Production';
 $_['text_successful']    = 'Always Successful';
 $_['text_fail']          = 'Always Fail';
 $_['text_edit']          = 'Configure Duitku Payment Gateway';
 
-$_['entry_plugin_status']  = 'Plugin Status';
+$_['entry_plugin_status']  = 'Environment';
 $_['entry_endpoint']     = 'URL Endpoint';
 $_['entry_merchant']     = 'Merchant Code';
 $_['entry_api_key']      = 'Merchant API Key';
@@ -35,6 +35,7 @@ $_['popup_mode'] = 'Popup';
 $_['redirect_mode'] = 'Redirect';
 
 // Error
+$_['error_expired_period']   = 'Expired Period is required! 1 - 1440 ( minute )';
 $_['error_permission'] = 'Warning: You do not have permission to modify the Duitku Payment!';
 $_['error_merchant_code'] = 'Merchant Code is required!';
 $_['error_api_key'] = 'API Key is required!';

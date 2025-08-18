@@ -2,7 +2,7 @@
   "name": "Duitku Payment Gateway (POP)",
   "code":"duitku_pop",
   "description": "Duitku Payment Gateway facilitates your business so that customers can make payments automatically directly on your website or application",
-  "version": "2.0",
+  "version": "1.0",
   "author": "Duitku",
   "link": "https://www.duitku.com"
 }

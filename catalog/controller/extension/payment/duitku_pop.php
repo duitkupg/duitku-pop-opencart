@@ -61,6 +61,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
       'paymentMethod' => "",
       'productDetails' => $this->config->get('config_name') . ' Order : #' . $order_id,
       'additionalParam' => $order_info['payment_firstname'] . " " . $order_info['payment_lastname'],
+      'customerVaName' => $order_info['payment_firstname'] . " " . $order_info['payment_lastname'],
       'email' => $order_info['email'],
       'phoneNumber' => $order_info['telephone'],
       'returnUrl' => $this->url->link('extension/payment/duitku_pop/payment_notification'),

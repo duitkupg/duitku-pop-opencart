@@ -122,7 +122,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
       }
 
       $shipping_item = array(
-        'price' => $shipping_data['cost'],
+        'price' => (int)$shipping_data['cost'],
         'quantity' => 1,
         'name' => 'Shipping Fee'
       );

@@ -61,6 +61,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
       'paymentMethod' => "",
       'productDetails' => $this->config->get('config_name') . ' Order : #' . $order_id,
       'additionalParam' => $order_info['payment_firstname'] . " " . $order_info['payment_lastname'],
+      'customerVaName' => $order_info['payment_firstname'] . " " . $order_info['payment_lastname'],
       'email' => $order_info['email'],
       'phoneNumber' => $order_info['telephone'],
       'returnUrl' => $this->url->link('extension/payment/duitku_pop/payment_notification'),
@@ -122,7 +123,7 @@ class ControllerExtensionPaymentDuitkuPop extends Controller
       }
 
       $shipping_item = array(
-        'price' => $shipping_data['cost'],
+        'price' => (int)$shipping_data['cost'],
         'quantity' => 1,
         'name' => 'Shipping Fee'
       );
